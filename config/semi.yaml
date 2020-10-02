@@ -1,0 +1,82 @@
+RandomSeed: 10
+
+Arch:
+  input_dim: 1
+  num_classes: 4
+
+Optim:
+  name: Adam
+  lr: 0.0000001
+  weight_decay: 0.00001
+
+Scheduler:
+  multiplier: 400
+  warmup_max: 10
+
+Data:
+  name: acdc
+  labeled_data_ratio: 0.05
+  unlabeled_data_ratio: 0.95
+
+LabeledData:
+  shuffle: true
+  batch_size: 4
+  num_workers: 4
+
+UnlabeledData:
+  shuffle: true
+  batch_size: 10
+  num_workers: 4
+
+Trainer:
+  feature_names: ["Conv5", "Up_conv3", "Up_conv2"]
+  feature_importance: [1, 0.5, 0.5]
+  name: partial
+  save_dir: tmp
+  device: cuda
+  num_batches: 500
+  max_epoch: 100
+
+UDARegCriterion:
+  name: mse # kl
+  weight: 5.0
+
+IICRegParameters:
+  EncoderParams:
+    num_clusters: 20
+    num_subheads: 5
+    head_types: linear
+    normalize: false
+
+  DecoderParams:
+    num_clusters: 20
+    num_subheads: 5
+    head_types: linear
+    normalize: false
+
+  LossParams:
+    paddings: [1, 3]
+    patch_sizes: 1024
+
+  weight: 0.1
+
+EntropyMinParameters:
+  weight: 0.00001
+
+MeanTeacherParameters:
+  name: mse
+  weight: 10
+  alpha: 0.999
+  weight_decay: 0.000001
+
+MIDLPaperParameters:
+  iic_weight: 0.1
+  padding: 1
+  patch_size: 1024
+
+
+
+
+
+
+#Checkpoint: runs/test_pipeline

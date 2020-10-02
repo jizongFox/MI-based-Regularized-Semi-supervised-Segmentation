@@ -5,20 +5,18 @@ from pathlib import Path
 from typing import Tuple
 
 import torch
-from torch import nn
-
-from contrastyou import PROJECT_PATH
-from contrastyou.losses.iic_loss import IIDSegmentationSmallPathLoss
 from deepclustering2 import optim
 from deepclustering2.loss import KL_div
 from deepclustering2.meters2 import EpochResultDict, StorageIncomeDict
-from deepclustering2.models import ema_updater
 from deepclustering2.schedulers import GradualWarmupScheduler
 from deepclustering2.trainer import Trainer
 from deepclustering2.type import T_loader, T_loss
+from torch import nn
+
+from contrastyou import PROJECT_PATH
 from semi_seg._utils import IICLossWrapper, ProjectorWrapper
 from semi_seg.epocher import TrainEpocher, EvalEpocher, UDATrainEpocher, IICTrainEpocher, UDAIICEpocher, \
-    EntropyMinEpocher, MeanTeacherEpocher, IICMeanTeacherEpocher, InferenceEpocher, MIDLPaperEpocher
+    InferenceEpocher
 
 __all__ = ["trainer_zoos"]
 
@@ -146,29 +144,6 @@ class UDATrainer(SemiTrainer):
         return result
 
 
-class MIDLTrainer(UDATrainer):
-    def _init(self):
-        super(MIDLTrainer, self)._init()
-        self._uda_weight = deepcopy(self._reg_weight)
-        self._reg_weight = 1.0
-        config = deepcopy(self._config["MIDLPaperParameters"])
-        self._iic_segcriterion = IIDSegmentationSmallPathLoss(
-            padding=int(config["padding"]),
-            patch_size=int(config["patch_size"])
-        )
-        self._iic_weight = float(config["iic_weight"])
-
-    def _run_epoch(self, *args, **kwargs) -> EpochResultDict:
-        trainer = MIDLPaperEpocher(self._model, self._optimizer, self._labeled_loader, self._unlabeled_loader,
-                                   self._sup_criterion, num_batches=self._num_batches,
-                                   cur_epoch=self._cur_epoch, device=self._device, reg_criterion=self._reg_criterion,
-                                   feature_position=self.feature_positions, feature_importance=self._feature_importance,
-                                   iic_weight=self._iic_weight, uda_weight=self._uda_weight,
-                                   iic_segcriterion=self._iic_segcriterion)
-        result = trainer.run()
-        return result
-
-
 class IICTrainer(SemiTrainer):
     def _init(self):
         super(IICTrainer, self)._init()
@@ -214,7 +189,7 @@ class UDAIICTrainer(IICTrainer):
         self._iic_weight = deepcopy(self._reg_weight)
         self._reg_weight = 1.0
         UDA_config = deepcopy(self._config["UDARegCriterion"])
-        self._reg_criterion = {"mse": nn.MSELoss(), "kl": KL_div(verbose=False)}[UDA_config["name"]]
+        self._reg_criterion = {"mse": nn.MSELoss(), "kl": KL_div()}[UDA_config["name"]]
         self._uda_weight = float(UDA_config["weight"])
 
     def _run_epoch(self, *args, **kwargs) -> EpochResultDict:
@@ -229,91 +204,9 @@ class UDAIICTrainer(IICTrainer):
         return result
 
 
-class EntropyMinTrainer(SemiTrainer):
-    def _init(self):
-        super(EntropyMinTrainer, self)._init()
-        config = deepcopy(self._config["EntropyMinParameters"])
-        self._reg_weight = float(config["weight"])
-
-    def _run_epoch(self, *args, **kwargs):
-        trainer = EntropyMinEpocher(self._model, self._optimizer, self._labeled_loader, self._unlabeled_loader,
-                                    self._sup_criterion, reg_weight=self._reg_weight, num_batches=self._num_batches,
-                                    cur_epoch=self._cur_epoch, device=self._device,
-                                    feature_position=self.feature_positions,
-                                    feature_importance=self._feature_importance)
-        result = trainer.run()
-        return result
-
-
-class MeanTeacherTrainer(SemiTrainer):
-    def _init(self):
-        super(MeanTeacherTrainer, self)._init()
-        self._teacher_model = deepcopy(self._model)
-        for param in self._teacher_model.parameters():
-            param.detach_()
-        self._teacher_model.train()
-        config = deepcopy(self._config["MeanTeacherParameters"])
-        self._reg_criterion = {"mse": nn.MSELoss(), "kl": KL_div()}[config["name"]]
-        self._ema_updater = ema_updater(alpha=float(config["alpha"]), weight_decay=float(config["weight_decay"]))
-        self._reg_weight = float(config["weight"])
-
-    def _run_epoch(self, *args, **kwargs) -> EpochResultDict:
-        trainer = MeanTeacherEpocher(self._model, self._teacher_model, self._optimizer, self._ema_updater,
-                                     self._labeled_loader, self._unlabeled_loader,
-                                     self._sup_criterion, reg_criterion=self._reg_criterion,
-                                     reg_weight=self._reg_weight, num_batches=self._num_batches,
-                                     cur_epoch=self._cur_epoch, device=self._device,
-                                     feature_position=self.feature_positions,
-                                     feature_importance=self._feature_importance)
-        result = trainer.run()
-        return result
-
-    def _eval_epoch(self, *args, **kwargs) -> Tuple[EpochResultDict, float]:
-        evaler = EvalEpocher(self._teacher_model, val_loader=self._val_loader, sup_criterion=self._sup_criterion,
-                             cur_epoch=self._cur_epoch, device=self._device)
-        result, cur_score = evaler.run()
-        return result, cur_score
-
-
-class IICMeanTeacherTrainer(IICTrainer):
-
-    def _init(self):
-        super()._init()
-        self._iic_weight = deepcopy(self._reg_weight)
-        self._teacher_model = deepcopy(self._model)
-        for param in self._teacher_model.parameters():
-            param.detach_()
-        self._teacher_model.train()
-        config = deepcopy(self._config["MeanTeacherParameters"])
-        self._reg_criterion = {"mse": nn.MSELoss(), "kl": KL_div()}[config["name"]]
-        self._ema_updater = ema_updater(alpha=float(config["alpha"]), weight_decay=float(config["weight_decay"]))
-        self._mt_weight = float(config["weight"])
-
-    def _run_epoch(self, *args, **kwargs) -> EpochResultDict:
-        trainer = IICMeanTeacherEpocher(
-            self._model, self._teacher_model, self._projector_wrappers, self._optimizer, self._ema_updater,
-            self._labeled_loader, self._unlabeled_loader, self._sup_criterion, reg_criterion=self._reg_criterion,
-            num_batches=self._num_batches, cur_epoch=self._cur_epoch, device=self._device,
-            feature_position=self.feature_positions, feature_importance=self._feature_importance,
-            IIDSegCriterionWrapper=self._IIDSegWrapper, mt_weight=self._mt_weight, iic_weight=self._iic_weight
-        )
-        result = trainer.run()
-        return result
-
-    def _eval_epoch(self, *args, **kwargs) -> Tuple[EpochResultDict, float]:
-        evaler = EvalEpocher(self._teacher_model, val_loader=self._val_loader, sup_criterion=self._sup_criterion,
-                             cur_epoch=self._cur_epoch, device=self._device)
-        result, cur_score = evaler.run()
-        return result, cur_score
-
-
 trainer_zoos = {
     "partial": SemiTrainer,
     "uda": UDATrainer,
     "iic": IICTrainer,
     "udaiic": UDAIICTrainer,
-    "entropy": EntropyMinTrainer,
-    "meanteacher": MeanTeacherTrainer,
-    "iicmeanteacher": IICMeanTeacherTrainer,
-    "midl": MIDLTrainer
 }
