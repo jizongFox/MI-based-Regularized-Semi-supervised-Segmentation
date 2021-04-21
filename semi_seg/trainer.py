@@ -26,13 +26,14 @@ class SemiTrainer(Trainer):
 
     feature_positions = ["Up_conv4", "Up_conv3"]
 
-    def __init__(self, model: nn.Module, labeled_loader: T_loader, unlabeled_loader: T_loader,
-                 val_loader: T_loader, sup_criterion: T_loss, save_dir: str = "base", max_epoch: int = 100,
-                 num_batches: int = 100, device: str = "cpu", configuration=None, **kwargs):
+    def __init__(self, *, model: nn.Module, labeled_loader: T_loader, unlabeled_loader: T_loader,
+                 val_loader: T_loader, test_loader: T_loader, sup_criterion: T_loss, save_dir: str = "base",
+                 max_epoch: int = 100, num_batches: int = 100, device: str = "cpu", configuration=None, **kwargs):
         super().__init__(model, save_dir, max_epoch, num_batches, device, configuration)
         self._labeled_loader = labeled_loader
         self._unlabeled_loader = unlabeled_loader
         self._val_loader = val_loader
+        self._test_loader = test_loader
         self._sup_criterion = sup_criterion
 
     def init(self):
@@ -79,8 +80,8 @@ class SemiTrainer(Trainer):
         result = trainer.run()
         return result
 
-    def _eval_epoch(self, *args, **kwargs) -> Tuple[EpochResultDict, float]:
-        evaler = EvalEpocher(self._model, val_loader=self._val_loader, sup_criterion=self._sup_criterion,
+    def _eval_epoch(self, *, loader: T_loader, **kwargs) -> Tuple[EpochResultDict, float]:
+        evaler = EvalEpocher(self._model, val_loader=loader, sup_criterion=self._sup_criterion,
                              cur_epoch=self._cur_epoch, device=self._device)
         result, cur_score = evaler.run()
         return result, cur_score
@@ -92,11 +93,12 @@ class SemiTrainer(Trainer):
             cur_score: float
             train_result = self.run_epoch()
             with torch.no_grad():
-                eval_result, cur_score = self.eval_epoch()
+                eval_result, cur_score = self.eval_epoch(loader=self._val_loader)
+                test_result, _ = self.eval_epoch(loader=self._test_loader)
             # update lr_scheduler
             if hasattr(self, "_scheduler"):
                 self._scheduler.step()
-            storage_per_epoch = StorageIncomeDict(tra=train_result, val=eval_result)
+            storage_per_epoch = StorageIncomeDict(tra=train_result, val=eval_result, test=test_result)
             self._storage.put_from_dict(storage_per_epoch, self._cur_epoch)
             self._writer.add_scalar_with_StorageDict(storage_per_epoch, self._cur_epoch)
             # save_checkpoint
@@ -116,7 +118,7 @@ class SemiTrainer(Trainer):
                 assert checkpoint.exists()
                 checkpoint = checkpoint / "best.pth"
             self.load_state_dict_from_path(str(checkpoint), strict=True)
-        evaler = InferenceEpocher(self._model, val_loader=self._val_loader, sup_criterion=self._sup_criterion,
+        evaler = InferenceEpocher(self._model, val_loader=self._test_loader, sup_criterion=self._sup_criterion,
                                   cur_epoch=self._cur_epoch, device=self._device)
         evaler.set_save_dir(self._save_dir)
         result, cur_score = evaler.run()

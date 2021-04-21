@@ -13,7 +13,7 @@ from deepclustering2.configparser import ConfigManger
 from deepclustering2.utils import gethash
 from deepclustering2.utils import set_benchmark
 from semi_seg.trainer import trainer_zoos
-from semi_seg.dataloader_helper import get_dataloaders
+from semi_seg.dataloader_helper import get_dataloaders, create_val_loader
 
 # load configure from yaml and argparser
 cmanager = ConfigManger(Path(PROJECT_PATH) / "config/semi.yaml")
@@ -23,7 +23,8 @@ cur_githash = gethash(__file__)
 # set reproducibility
 set_benchmark(config.get("RandomSeed", 1))
 
-labeled_loader, unlabeled_loader, val_loader = get_dataloaders(config)
+labeled_loader, unlabeled_loader, test_loader = get_dataloaders(config)
+val_loader = create_val_loader(unlabeled_loader, test_loader)
 
 trainer_name = config["Trainer"].pop("name")
 Trainer = trainer_zoos[trainer_name]
@@ -32,7 +33,7 @@ model = UNet(**config["Arch"])
 
 trainer = Trainer(
     model=model, labeled_loader=iter(labeled_loader), unlabeled_loader=iter(unlabeled_loader),
-    val_loader=val_loader, sup_criterion=KL_div(),
+    val_loader=val_loader, test_loader=test_loader, sup_criterion=KL_div(),
     configuration={**cmanager.config, **{"GITHASH": cur_githash}},
     **config["Trainer"]
 )
