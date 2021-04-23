@@ -1,3 +1,2 @@
-#!$SHEBANG$
-
-$END$
+#!/bin/bash
+rsync -azP --exclude "*.pth" shanxi1:/home/jizong/MI-based-Regularized-Semi-supervised-Segmentation/semi_seg/runs ./

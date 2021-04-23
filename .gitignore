@@ -6,6 +6,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 ./venv
 .data
+semi_seg/runs
+semi_seg/transfer
 
 # User-specific files
 *.rsuser

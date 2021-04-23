@@ -1,32 +1,34 @@
 #!/bin/bash
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/15.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=15.0
+random_seed=10
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/10.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=10.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/15.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=15.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/5.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=5.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/10.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=10.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/1.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=1.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/5.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=5.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/15.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=15.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/1.0_0.1 IICRegParameters.weight=0.1 UDARegCriterion.weight=1.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/10.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=10.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/15.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=15.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/5.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=5.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/10.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=10.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/1.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=1.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/5.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=5.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/15.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=15.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/1.0_0.01 IICRegParameters.weight=0.01 UDARegCriterion.weight=1.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/10.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=10.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/15.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=15.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/5.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=5.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/10.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=10.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/1.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=1.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/5.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=5.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/15.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=15.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/1.0_0.05 IICRegParameters.weight=0.05 UDARegCriterion.weight=1.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/10.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=10.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/15.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=15.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/5.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=5.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/10.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=10.0
 
-python main.py Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/1.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=1.0
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/5.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=5.0
+
+python main.py RandomSeed=${random_seed} Data.labeled_data_ratio=0.05 Data.unlabeled_data_ratio=0.95 Trainer.num_batches=300 Trainer.max_epoch=100 Data.name=acdc Arch.num_classes=4 Optim.lr=0.0000001000 Trainer.name=udaiic Trainer.save_dir=udaiic/seed_${random_seed}/1.0_1 IICRegParameters.weight=1 UDARegCriterion.weight=1.0
