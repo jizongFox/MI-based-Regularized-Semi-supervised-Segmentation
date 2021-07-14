@@ -9,6 +9,7 @@ from deepclustering2.decorator import FixRandomSeed
 
 
 class SequentialWrapper:
+    """the image target is going to be matched. """
 
     def __init__(
         self,
@@ -71,6 +72,7 @@ class SequentialWrapper:
 
 
 class SequentialWrapperTwice(SequentialWrapper):
+    "-> (image1, target1), *_ = data"
 
     def __init__(self, comm_transform: Callable[[Image.Image], Image.Image] = None,
                  img_transform: Callable[[Image.Image], Tensor] = pil_augment.ToTensor(),

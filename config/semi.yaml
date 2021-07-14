@@ -20,12 +20,12 @@ Data:
 
 LabeledData:
   shuffle: true
-  batch_size: 4
+  batch_size: 5
   num_workers: 4
 
 UnlabeledData:
   shuffle: true
-  batch_size: 10
+  batch_size: 5
   num_workers: 4
 
 Trainer:

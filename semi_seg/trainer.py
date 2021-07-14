@@ -15,39 +15,39 @@ from torch import nn
 
 from contrastyou import PROJECT_PATH
 from semi_seg._utils import IICLossWrapper, ProjectorWrapper
-from semi_seg.epocher import TrainEpocher, EvalEpocher, UDATrainEpocher, IICTrainEpocher, UDAIICEpocher, \
+from semi_seg.epocher import EvalEpocher, UDATrainEpocher, IICTrainEpocher, UDAIICEpocher, \
     InferenceEpocher
 
 __all__ = ["trainer_zoos"]
 
 
 class SemiTrainer(Trainer):
+    """
+    >>> model = Unet()
+    >>> labeled_dataloader = ...
+    >>> supervised_criterion = Crossentropy()
+    >>> trainer = SemiTrainer(model, labeled_dataloader, supervised_criterion,...)
+    >>> trainer.init() # create optimizer and scheduler
+    >>> trainer.start_training() -> folder with results.
+
+
+    """
     RUN_PATH = str(Path(PROJECT_PATH) / "semi_seg" / "runs")  # noqa
 
     feature_positions = ["Up_conv4", "Up_conv3"]
 
-    def __init__(self, *, model: nn.Module, labeled_loader: T_loader, unlabeled_loader: T_loader,
+    def __init__(self, *, model: nn.Module, labeled_loader: T_loader,
                  val_loader: T_loader, test_loader: T_loader, sup_criterion: T_loss, save_dir: str = "base",
-                 max_epoch: int = 100, num_batches: int = 100, device: str = "cpu", configuration=None, **kwargs):
-        super().__init__(model, save_dir, max_epoch, num_batches, device, configuration)
+                 max_epoch: int = 100, device: str = "cpu", configuration=None, **kwargs):
+        super().__init__(model, save_dir, max_epoch, len(labeled_loader), device, configuration)
         self._labeled_loader = labeled_loader
-        self._unlabeled_loader = unlabeled_loader
         self._val_loader = val_loader
         self._test_loader = test_loader
         self._sup_criterion = sup_criterion
 
     def init(self):
-        self._init()
         self._init_optimizer()
         self._init_scheduler(self._optimizer)
-
-    def _init(self):
-        self.set_feature_positions(self._config["Trainer"]["feature_names"])
-        feature_importance = self._config["Trainer"]["feature_importance"]
-        assert isinstance(feature_importance, list), type(feature_importance)
-        feature_importance = [float(x) for x in feature_importance]
-        self._feature_importance = [x / sum(feature_importance) for x in feature_importance]
-        assert len(self._feature_importance) == len(self.feature_positions)
 
     def _init_scheduler(self, optimizer):
         scheduler_dict = self._config.get("Scheduler", None)
@@ -72,7 +72,7 @@ class SemiTrainer(Trainer):
         )
 
     def _run_epoch(self, *args, **kwargs) -> EpochResultDict:
-        trainer = TrainEpocher(
+        trainer = NewEpocher(
             self._model, self._optimizer, self._labeled_loader, self._unlabeled_loader,
             self._sup_criterion, 0, self._num_batches, self._cur_epoch, self._device,
             feature_position=self.feature_positions, feature_importance=self._feature_importance
@@ -87,13 +87,22 @@ class SemiTrainer(Trainer):
         return result, cur_score
 
     def _start_training(self):
+        """
+        >>> for cur_epoch in 0...1000:
+        >>>     train_epocher = OneEpocher(model, optimizer, labeled_data, criterion, ...)
+        >>>     train_for_cur_epoch = train_epocher.run()
+        >>>     result_for_cur_epoch = train_epocher.get_result()
+        >>>     self._save_cur_result(result_for_cur_epoch)
+
+        """
+
         for self._cur_epoch in range(self._start_epoch, self._max_epoch):
             train_result: EpochResultDict
             eval_result: EpochResultDict
             cur_score: float
             train_result = self.run_epoch()
             with torch.no_grad():
-                eval_result, cur_score = self.eval_epoch(loader=self._val_loader)
+                # eval_result, cur_score = self.eval_epoch(loader=self._val_loader)
                 test_result, _ = self.eval_epoch(loader=self._test_loader)
             # update lr_scheduler
             if hasattr(self, "_scheduler"):
@@ -127,6 +136,10 @@ class SemiTrainer(Trainer):
     @classmethod
     def set_feature_positions(cls, feature_positions):
         cls.feature_positions = feature_positions
+
+
+class Fullytrainer(SemiTrainer):
+    pass
 
 
 class UDATrainer(SemiTrainer):
